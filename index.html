@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Backpackers Guide</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel для компиляции JSX прямо в браузере -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Убираем синее выделение при тапе на мобилках */
+    body { -webkit-tap-highlight-color: transparent; }
+    
+    /* Анимация появления */
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(10px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .animate-in { animation: fadeIn 0.4s ease-out forwards; }
+    
+    /* Отступ снизу для айфонов с полоской */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans selection:bg-indigo-100 antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // --- Иконки (встроенные SVG, чтобы не тянуть зависимости) ---
+    const IconHome = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+    const IconMap = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>;
+    const IconBus = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>;
+    const IconUtensils = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>;
+    const IconWifi = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>;
+    const IconClock = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+    const IconPhone = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+    const IconMapPin = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+    const IconInfo = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+    const IconCoffee = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>;
+    const IconAlertTriangle = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>;
+    const IconChevronRight = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
+    const IconInstagram = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>;
+    const IconWhatsApp = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>;
+
+    const App = () => {
+      const [activeTab, setActiveTab] = useState('home');
+      const [lang, setLang] = useState('ru');
+
+      const dict = {
+        ru: {
+          greeting: "Привет! 👋",
+          welcome: "Добро пожаловать в наш хостел. Мы собрали этот мини-гид, чтобы ты не терялся в Алматы и чувствовал себя как дома.",
+          wifi: "Wi-Fi Сеть",
+          pass: "Пароль",
+          rules: "Базовые правила",
+          rule1: "Тихий час с 23:00 до 08:00. Уважаем сон друг друга.",
+          rule2: "Посуду за собой моем сами. На кухне самообслуживание.",
+          rule3: "Курение только в специально отведенной зоне на улице.",
+          placesTitle: "Что посмотреть? 🏔️",
+          transportTitle: "Транспорт 🚕",
+          foodTitle: "Где поесть? 🍜",
+          tabHome: "Главная",
+          tabPlaces: "Места",
+          tabTransport: "Транспорт",
+          tabFood: "Еда",
+          places: [
+            { id: 1, name: 'Медеу и Шымбулак', desc: 'Легендарный каток и горнолыжка. Маст-хэв Алматы.', tag: 'Горы' },
+            { id: 2, name: 'Кок-Тобе', desc: 'Парк на горе с канаткой, шикарный вид на город на закате.', tag: 'Вид' },
+            { id: 3, name: 'Парк Панфиловцев и Арбат', desc: 'Для пеших прогулок по центру, кофе и уличных музыкантов.', tag: 'Прогулка' },
+            { id: 4, name: 'Ботанический сад', desc: 'Идеальное место, чтобы почиллить в тишине среди сосен.', tag: 'Природа' },
+          ],
+          foodSpots: [
+            { id: 1, name: 'ЧИКО', desc: 'Топовый корейский стрит-фуд. Идеально для быстрого и атмосферного перекуса.', type: 'Стрит-фуд' },
+            { id: 2, name: 'Navat', desc: 'Если хочется попробовать местную кухню, бешбармак и баурсаки — сюда.', type: 'Локал' },
+            { id: 3, name: 'JumpinGoat / Vanilla', desc: 'Классные кофейни со спешелти кофе и вкусными завтраками.', type: 'Кофе' },
+          ],
+          transport: [
+            { title: 'Такси', text: 'Пользуйся Яндекс Go. Убер тут работает через ту же базу. Не лови такси на улице — обдерут.', icon: <IconMapPin className="w-5 h-5 text-yellow-500" /> },
+            { title: 'Карты', text: 'Скачай 2GIS! Гугл карты тут работают так себе, 2GIS знает каждый забор и маршрут автобуса.', icon: <IconMap className="w-5 h-5 text-green-500" /> },
+            { title: 'Общественный транспорт', text: 'Оплата картой ONAY (можно виртуальную) или SMS. Метро состоит из одной ветки, но красивое.', icon: <IconBus className="w-5 h-5 text-blue-500" /> },
+          ]
+        },
+        kz: {
+          greeting: "Сәлем! 👋",
+          welcome: "Біздің хостелге қош келдің. Алматыда адаспай, өзіңді үйдегідей сезіну үшін осы шағын гидті жинадық.",
+          wifi: "Wi-Fi желісі",
+          pass: "Құпия сөз",
+          rules: "Негізгі ережелер",
+          rule1: "Тыныштық уақыты 23:00-ден 08:00-ге дейін. Бір-біріміздің ұйқымызды құрметтейміз.",
+          rule2: "Ыдысты өзіміз жуамыз. Ас үйде өзіне-өзі қызмет көрсету.",
+          rule3: "Шылым шегу тек даладағы арнайы орында рұқсат етіледі.",
+          placesTitle: "Не көруге болады? 🏔️",
+          transportTitle: "Көлік 🚕",
+          foodTitle: "Қайда тамақтануға болады? 🍜",
+          tabHome: "Басты",
+          tabPlaces: "Орындар",
+          tabTransport: "Көлік",
+          tabFood: "Тамақ",
+          places: [
+            { id: 1, name: 'Медеу мен Шымбұлақ', desc: 'Аты аңызға айналған мұз айдыны мен тау шаңғысы. Алматының маст-хэві.', tag: 'Таулар' },
+            { id: 2, name: 'Көктөбе', desc: 'Аспалы жолы бар таудағы бақ, күн батқанда қаланың керемет көрінісі ашылады.', tag: 'Көрініс' },
+            { id: 3, name: 'Панфиловшылар саябағы және Арбат', desc: 'Орталықта жаяу серуендеуге, кофе ішіп, көше музыканттарын тыңдауға арналған.', tag: 'Серуен' },
+            { id: 4, name: 'Ботаникалық бақ', desc: 'Қарағайлар арасында тыныштықта демалуға таптырмас орын.', tag: 'Табиғат' },
+          ],
+          foodSpots: [
+            { id: 1, name: 'ЧИКО', desc: 'Күшті корей стрит-фуды. Жылдам әрі атмосфералық тамақтануға таптырмас орын.', type: 'Стрит-фуд' },
+            { id: 2, name: 'Navat', desc: 'Егер жергілікті тағамдардан дәм татқың келсе, бешбармақ пен бауырсақ осында.', type: 'Жергілікті' },
+            { id: 3, name: 'JumpinGoat / Vanilla', desc: 'Спешелти кофесі мен дәмді таңғы асы бар керемет кофеханалар.', type: 'Кофе' },
+          ],
+          transport: [
+            { title: 'Такси', text: 'Яндекс Go қолдан. Uber де осындай база арқылы жұмыс істейді. Көшеден такси ұстама — қымбатқа түседі.', icon: <IconMapPin className="w-5 h-5 text-yellow-500" /> },
+            { title: 'Карталар', text: '2GIS жүктеп ал! Гугл карталары мұнда нашар жұмыс істейді, ал 2GIS әрбір қоршау мен автобус бағытын біледі.', icon: <IconMap className="w-5 h-5 text-green-500" /> },
+            { title: 'Қоғамдық көлік', text: 'Төлем ONAY картасымен (виртуалды да болады) немесе SMS арқылы жасалады. Метро бір ғана тармақтан тұрады, бірақ өте әдемі.', icon: <IconBus className="w-5 h-5 text-blue-500" /> },
+          ]
+        },
+        en: {
+          greeting: "Hello! 👋",
+          welcome: "Welcome to our hostel. We've put together this mini-guide so you don't get lost in Almaty and feel right at home.",
+          wifi: "Wi-Fi Network",
+          pass: "Password",
+          rules: "Basic Rules",
+          rule1: "Quiet hours from 23:00 to 08:00. Please respect each other's sleep.",
+          rule2: "Wash your own dishes. The kitchen is self-service.",
+          rule3: "Smoking is only allowed in the designated outdoor area.",
+          placesTitle: "What to see? 🏔️",
+          transportTitle: "Transport 🚕",
+          foodTitle: "Where to eat? 🍜",
+          tabHome: "Home",
+          tabPlaces: "Places",
+          tabTransport: "Transport",
+          tabFood: "Food",
+          places: [
+            { id: 1, name: 'Medeu and Shymbulak', desc: 'Legendary ice rink and ski resort. An Almaty must-have.', tag: 'Mountains' },
+            { id: 2, name: 'Kok-Tobe', desc: 'A park on a hill with a cable car, offering a gorgeous view of the city at sunset.', tag: 'View' },
+            { id: 3, name: 'Panfilov Park and Arbat', desc: 'For walking in the center, getting coffee, and listening to street musicians.', tag: 'Walking' },
+            { id: 4, name: 'Botanical Garden', desc: 'The perfect place to chill in silence among the pine trees.', tag: 'Nature' },
+          ],
+          foodSpots: [
+            { id: 1, name: 'ЧИКО', desc: 'Top-notch Korean street food. Perfect for a quick and atmospheric bite.', type: 'Street food' },
+            { id: 2, name: 'Navat', desc: 'If you want to try local cuisine, beshbarmak, and baursaks — come here.', type: 'Local' },
+            { id: 3, name: 'JumpinGoat / Vanilla', desc: 'Cool coffee shops with specialty coffee and delicious breakfasts.', type: 'Coffee' },
+          ],
+          transport: [
+            { title: 'Taxi', text: 'Use Yandex Go. Uber works here through the same base. Do not hail cabs on the street — they will overcharge you.', icon: <IconMapPin className="w-5 h-5 text-yellow-500" /> },
+            { title: 'Maps', text: 'Download 2GIS! Google Maps works poorly here, 2GIS knows every fence and bus route.', icon: <IconMap className="w-5 h-5 text-green-500" /> },
+            { title: 'Public Transport', text: 'Pay with an ONAY card (can be virtual) or SMS. The metro has only one line, but it is beautiful.', icon: <IconBus className="w-5 h-5 text-blue-500" /> },
+          ]
+        }
+      };
+
+      const t = dict[lang];
+
+      // --- Компоненты экранов ---
+
+      const HomeView = () => (
+        <div className="space-y-4 animate-in">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+            <h2 className="text-2xl font-bold mb-2">{t.greeting}</h2>
+            <p className="text-indigo-100 opacity-90 text-sm leading-relaxed">
+              {t.welcome}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="bg-indigo-100 p-3 rounded-full">
+                <IconWifi className="w-6 h-6 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-medium">{t.wifi}</p>
+                <p className="font-bold text-gray-800">Backpackers_5G</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500 font-medium">{t.pass}</p>
+              <p className="font-bold text-gray-800 tracking-wide">guest2026</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <h3 className="font-bold text-gray-800 mb-4 flex items-center">
+              <IconInfo className="w-5 h-5 mr-2 text-indigo-500" /> 
+              {t.rules}
+            </h3>
+            <ul className="space-y-3">
+              <li className="flex items-start">
+                <IconClock className="w-5 h-5 mr-3 text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-600">{t.rule1}</span>
+              </li>
+              <li className="flex items-start">
+                <IconCoffee className="w-5 h-5 mr-3 text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-600">{t.rule2}</span>
+              </li>
+              <li className="flex items-start">
+                <IconAlertTriangle className="w-5 h-5 mr-3 text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-600">{t.rule3}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex gap-3">
+            <a href="https://wa.me/77000000000" target="_blank" className="flex-1 bg-green-50 text-green-600 rounded-2xl p-4 font-semibold flex items-center justify-center shadow-sm active:bg-green-100 transition">
+              <IconWhatsApp className="w-5 h-5 mr-2" />
+              WhatsApp
+            </a>
+            <a href="https://instagram.com/твой_аккаунт" target="_blank" className="flex-1 bg-pink-50 text-pink-600 rounded-2xl p-4 font-semibold flex items-center justify-center shadow-sm active:bg-pink-100 transition">
+              <IconInstagram className="w-5 h-5 mr-2" />
+              Instagram
+            </a>
+          </div>
+        </div>
+      );
+
+      const GuideView = () => (
+        <div className="space-y-4 animate-in">
+          <h2 className="text-xl font-bold text-gray-800 px-1">{t.placesTitle}</h2>
+          <div className="grid gap-3">
+            {t.places.map(place => (
+              <div key={place.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between active:scale-[0.98] transition">
+                <div className="pr-4">
+                  <span className="text-xs font-semibold text-indigo-500 mb-1 block uppercase tracking-wider">{place.tag}</span>
+                  <h3 className="font-bold text-gray-800 text-base">{place.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1 leading-snug">{place.desc}</p>
+                </div>
+                <IconChevronRight className="w-5 h-5 text-gray-300 shrink-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+
+      const TransportView = () => (
+        <div className="space-y-4 animate-in">
+          <h2 className="text-xl font-bold text-gray-800 px-1">{t.transportTitle}</h2>
+          <div className="space-y-3">
+            {t.transport.map((item, idx) => (
+              <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <div className="flex items-center mb-2">
+                  <div className="bg-gray-50 p-2 rounded-lg mr-3">
+                    {item.icon}
+                  </div>
+                  <h3 className="font-bold text-gray-800">{item.title}</h3>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+
+      const FoodView = () => (
+        <div className="space-y-4 animate-in">
+          <h2 className="text-xl font-bold text-gray-800 px-1">{t.foodTitle}</h2>
+          <div className="space-y-3">
+            {t.foodSpots.map(spot => (
+              <div key={spot.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-start">
+                <div className="bg-orange-50 text-orange-500 p-2 rounded-xl mr-4 shrink-0">
+                  <IconUtensils className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-baseline justify-between">
+                    <h3 className="font-bold text-gray-800 text-base">{spot.name}</h3>
+                    <span className="text-[10px] font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full ml-2">
+                      {spot.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1 leading-snug">{spot.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+
+      return (
+        <div className="min-h-screen bg-gray-50 pb-24">
+          <header className="bg-white px-6 py-4 sticky top-0 z-10 shadow-sm/50 backdrop-blur-md bg-white/80 border-b border-gray-100 flex items-center justify-between">
+            <h1 className="text-lg font-black text-gray-800 tracking-tight flex items-center">
+              <span className="bg-indigo-600 text-white p-1.5 rounded-lg mr-2">BP</span>
+              GUIDE
+            </h1>
+            <div className="flex bg-gray-100 p-1 rounded-lg">
+              {['ru', 'kz', 'en'].map(l => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md uppercase transition ${lang === l ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </header>
+
+          <main className="p-4 max-w-lg mx-auto">
+            {activeTab === 'home' && <HomeView />}
+            {activeTab === 'guide' && <GuideView />}
+            {activeTab === 'transport' && <TransportView />}
+            {activeTab === 'food' && <FoodView />}
+          </main>
+
+          <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.03)] z-50">
+            <div className="max-w-lg mx-auto flex justify-between px-2 py-2">
+              <button 
+                onClick={() => setActiveTab('home')}
+                className={`flex-1 flex flex-col items-center p-2 rounded-xl transition ${activeTab === 'home' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <div className={`p-1 rounded-full mb-1 ${activeTab === 'home' ? 'bg-indigo-50' : ''}`}>
+                  <IconHome className="w-6 h-6" />
+                </div>
+                <span className="text-[10px] font-medium">{t.tabHome}</span>
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab('guide')}
+                className={`flex-1 flex flex-col items-center p-2 rounded-xl transition ${activeTab === 'guide' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <div className={`p-1 rounded-full mb-1 ${activeTab === 'guide' ? 'bg-indigo-50' : ''}`}>
+                  <IconMap className="w-6 h-6" />
+                </div>
+                <span className="text-[10px] font-medium">{t.tabPlaces}</span>
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab('transport')}
+                className={`flex-1 flex flex-col items-center p-2 rounded-xl transition ${activeTab === 'transport' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <div className={`p-1 rounded-full mb-1 ${activeTab === 'transport' ? 'bg-indigo-50' : ''}`}>
+                  <IconBus className="w-6 h-6" />
+                </div>
+                <span className="text-[10px] font-medium">{t.tabTransport}</span>
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab('food')}
+                className={`flex-1 flex flex-col items-center p-2 rounded-xl transition ${activeTab === 'food' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <div className={`p-1 rounded-full mb-1 ${activeTab === 'food' ? 'bg-indigo-50' : ''}`}>
+                  <IconUtensils className="w-6 h-6" />
+                </div>
+                <span className="text-[10px] font-medium">{t.tabFood}</span>
+              </button>
+            </div>
+          </nav>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
