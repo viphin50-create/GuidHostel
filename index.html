@@ -64,7 +64,7 @@
 
     const App = () => {
       const [activeTab, setActiveTab] = useState('home');
-      const [lang, setLang] = useState(() => localStorage.getItem('bp_lang') || 'ru');
+      const [lang, setLang] = useState(() => localStorage.getItem('bp_lang') || 'en');
 
       useEffect(() => {
         localStorage.setItem('bp_lang', lang);
@@ -79,13 +79,18 @@
           pass: "Пароль",
           doorCodeTitle: "Код от двери",
           doorCode: "2882#",
+          doorCodeWarning: "ВНИМАНИЕ: Не передавайте код посторонним. Используйте его только лично для вашей безопасности.",
           reception: "Часы работы ресепшена: 10:00 — 00:00. Если нас нет на месте, пожалуйста, напишите в WhatsApp:",
           
           rulesTitle: "Правила проживания ⚠️",
-          ruleNoRefund: "Возврат денежных средств не предусмотрен. Место бронируется специально для вас, и мы закрываем эти даты для других гостей.",
-          ruleClean: "Пожалуйста, соблюдайте чистоту в ванных комнатах, на кухне и в зонах отдыха. За оставленный мусор предусмотрен штраф от 10 000 до 20 000 ₸.",
-          ruleKey: "За утерю ключа взимается штраф в размере 15 000 ₸.",
-          ruleLate: "Нахождение в общих зонах хостела после выезда (с 17:00 до 00:00) оплачивается дополнительно — 4 000 ₸.",
+          rulesList: [
+            "Режим тишины действует с 23:00 до 09:00 на всей территории хостела, включая спальные комнаты. За нарушение предусмотрен штраф 10 000 ₸ или выселение.",
+            "Продукты на кухне и личные вещи (включая тапочки) принадлежат гостям. Использование чужого имущества недопустимо и контролируется по камерам (грозит немедленным выселением).",
+            "На территории хостела (включая уличную беседку) строго запрещено употребление крепкого алкоголя и любых запрещенных веществ.",
+            "За интимную близость на территории хостела предусмотрен штраф 20 000 ₸.",
+            "Пожалуйста, выбрасывайте мусор и остатки еды только в специальные ведра. Не смывайте их в кухонную раковину или унитаз.",
+            "В случае поломки имущества хостела гость полностью возмещает стоимость ремонта или покупки новой вещи."
+          ],
           
           servicesTitle: "Дополнительные услуги 🧺",
           srvLaundry: "Стирка (1 загрузка)",
@@ -96,6 +101,7 @@
           boundsTitle: "Важная информация 🛑",
           boundTickets: "К сожалению, мы не помогаем с покупкой билетов в соседние страны. Вы можете приобрести их самостоятельно на сайте автовокзала Сайран.",
           boundSims: "Мы не продаем SIM-карты и не вызываем такси. Рекомендуем приобрести местную SIM-карту в салонах Tele2/Activ и использовать приложение Yandex Go.",
+          boundBelongings: "Администрация не несет ответственности за личные вещи, оставленные без присмотра на территории хостела. Пожалуйста, будьте внимательны.",
           boundQuestions: "Просим обращаться на ресепшен только по вопросам, связанным с проживанием в хостеле. Благодарим за понимание!",
 
           placesTitle: "Что посмотреть? 🏔️",
@@ -291,13 +297,18 @@
           pass: "Құпия сөз",
           doorCodeTitle: "Есік коды",
           doorCode: "2882#",
+          doorCodeWarning: "НАЗАР АУДАРЫҢЫЗ: Кодты бөгде адамдарға бермеңіз. Қауіпсіздік үшін тек өзіңіз қолданыңыз.",
           reception: "Ресепшен жұмыс уақыты: 10:00 - 00:00. Егер біз орнымызда болмасақ, WhatsApp-қа жазуыңызды сұраймыз:",
           
           rulesTitle: "Жатақхана ережелері ⚠️",
-          ruleNoRefund: "Қаражат қайтарылмайды. Орын арнайы сіз үшін сақталады және біз бұл күндерді басқа қонақтар үшін жабамыз.",
-          ruleClean: "Жуынатын бөлмелерде, ас үйде және демалыс аймақтарында тазалық сақтауыңызды сұраймыз. Қоқыс қалдырғаны үшін 10 000 – 20 000 ₸ көлемінде айыппұл қарастырылған.",
-          ruleKey: "Кілтті жоғалтқан жағдайда 15 000 ₸ көлемінде айыппұл төленеді.",
-          ruleLate: "Тіркеуден шыққаннан кейін хостелдің ортақ аймақтарында (17:00-ден 00:00-ге дейін) қалу үшін 4 000 ₸ қосымша ақы алынады.",
+          rulesList: [
+            "Хостел аумағында (жатын бөлмелерді қоса алғанда) 23:00-ден 09:00-ге дейін тыныштық сақтау режимі әрекет етеді. Бұзған жағдайда 10 000 ₸ айыппұл немесе шығару қарастырылған.",
+            "Ас үйдегі азық-түлік пен жеке заттар (соның ішінде тәпішкелер) қонақтарға тиесілі. Бөтеннің мүлкін пайдалануға жол берілмейді және камералар арқылы бақыланады (дереу шығарылады).",
+            "Хостел аумағында (көшедегі күркеде де) күшті алкоголь мен кез келген тыйым салынған заттарды тұтынуға қатаң тыйым салынады.",
+            "Хостел аумағында интимдік жақындық үшін 20 000 ₸ айыппұл қарастырылған.",
+            "Қоқыс пен тамақ қалдықтарын тек арнайы шелектерге тастаңыз. Оларды ас үй раковинасына немесе унитазға ағызбаңыз.",
+            "Хостел мүлкі бүлінген жағдайда қонақ жөндеу немесе жаңа затты сатып алу құнын толығымен өтейді."
+          ],
           
           servicesTitle: "Қосымша қызметтер 🧺",
           srvLaundry: "Кір жуу (1 рет)",
@@ -308,6 +319,7 @@
           boundsTitle: "Маңызды ақпарат 🛑",
           boundTickets: "Өкінішке орай, біз көрші елдерге билет сатып алуға көмектеспейміз. Билеттерді Сайран автовокзалының сайтынан өзіңіз сатып ала аласыз.",
           boundSims: "Біз SIM-карта сатпаймыз және такси шақырмаймыз. Жергілікті SIM-картаны Tele2/Activ дүкендерінен сатып алуды және Yandex Go қосымшасын пайдалануды ұсынамыз.",
+          boundBelongings: "Әкімшілік хостел аумағында қараусыз қалдырылған жеке заттар үшін жауапкершілік көтермейді. Мұқият болуыңызды сұраймыз.",
           boundQuestions: "Ресепшенге тек хостелде тұруға қатысты сұрақтармен хабарласуыңызды сұраймыз. Түсіністік танытқаныңызға рақмет!",
 
           placesTitle: "Қайда баруға болады? 🏔️",
@@ -503,13 +515,18 @@
           pass: "Password",
           doorCodeTitle: "Door Code",
           doorCode: "2882#",
+          doorCodeWarning: "WARNING: Do not share the door code with outsiders. Keep it private for everyone's safety.",
           reception: "Reception hours: 10:00 AM – Midnight. If we are not at the desk, please contact us on WhatsApp:",
           
           rulesTitle: "Hostel Rules ⚠️",
-          ruleNoRefund: "Unfortunately, we do not offer refunds. Once payment is received, we reserve the spot for you and close those dates for other guests.",
-          ruleClean: "Please keep all areas clean, including bathrooms, the kitchen, and common areas. Leaving a mess may result in a fine of 10,000 – 20,000 KZT.",
-          ruleKey: "A fee of 15,000 KZT will be charged for a lost key.",
-          ruleLate: "Remaining in the common areas of the hostel after check-out (between 17:00 and midnight) incurs an additional charge of 4,000 KZT.",
+          rulesList: [
+            "Quiet hours are from 23:00 to 09:00 throughout the hostel, including dorm rooms. Violations will result in a 10,000 KZT fine or eviction.",
+            "Food in the kitchen and personal items (including slippers) belong to individual guests. Using others' property is strictly prohibited, monitored by cameras, and will lead to immediate eviction.",
+            "The consumption of hard liquor and any illegal substances is strictly prohibited on the hostel premises (including the outdoor gazebo).",
+            "Intimate relations on the hostel premises will result in a 20,000 KZT fine.",
+            "Please dispose of trash and food scraps only in designated bins. Do not flush them down the kitchen sink or toilet.",
+            "In case of damage to hostel property, the guest must fully cover the cost of repair or replacement."
+          ],
           
           servicesTitle: "Additional Services 🧺",
           srvLaundry: "Laundry (1 load)",
@@ -520,6 +537,7 @@
           boundsTitle: "Important Information 🛑",
           boundTickets: "We do not assist with booking tickets to neighboring countries. You can purchase them yourself on the Sairan Bus Station website.",
           boundSims: "We do not sell SIM cards or arrange taxis. We recommend purchasing a local SIM card from Tele2/Activ stores and using the Yandex Go app.",
+          boundBelongings: "The administration is not responsible for personal belongings left unattended on the hostel premises. Please keep an eye on your items.",
           boundQuestions: "We kindly ask that you direct your questions to the reception only regarding hostel-related topics. Thank you for your understanding!",
 
           placesTitle: "Where to go? 🏔️",
@@ -710,7 +728,7 @@
         }
       };
 
-      const t = dict[lang] || dict['ru'];
+      const t = dict[lang] || dict['en'];
 
       // --- Компоненты экранов ---
 
@@ -721,6 +739,21 @@
             <p className="text-indigo-100 opacity-90 text-sm leading-relaxed">
               {t.welcome}
             </p>
+          </div>
+
+          <div className="bg-green-50 rounded-2xl p-4 shadow-sm border border-green-100">
+            <p className="text-xs text-green-800 font-medium mb-3 text-center opacity-80">
+              {t.reception}
+            </p>
+            <div className="flex gap-3">
+              <a href="https://wa.me/77010701056" target="_blank" className="flex-1 bg-green-500 text-white rounded-xl p-3 text-sm font-bold flex items-center justify-center shadow-md active:bg-green-600 transition">
+                <IconWhatsApp className="w-4 h-4 mr-2" />
+                WhatsApp
+              </a>
+              <a href="https://www.instagram.com/almaty_backpackers" target="_blank" className="bg-pink-100 text-pink-600 rounded-xl p-3 shadow-sm active:bg-pink-200 transition">
+                <IconInstagram className="w-5 h-5" />
+              </a>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -743,6 +776,10 @@
                 <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">{t.doorCodeTitle}</p>
               </div>
               <p className="font-black text-indigo-900 text-xl tracking-widest">{t.doorCode}</p>
+              <div className="mt-3 bg-red-100/70 p-2.5 rounded-xl flex items-start border border-red-200">
+                <IconAlertTriangle className="w-4 h-4 text-red-600 shrink-0 mr-2 mt-0.5" />
+                <p className="text-[10px] text-red-800 font-bold leading-tight">{t.doorCodeWarning}</p>
+              </div>
             </div>
           </div>
 
@@ -767,22 +804,12 @@
               {t.rulesTitle}
             </h3>
             <ul className="space-y-3">
-              <li className="flex items-start">
-                <span className="text-red-400 mr-2 font-bold mt-0.5">•</span>
-                <span className="text-sm text-gray-700 leading-snug">{t.ruleNoRefund}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-red-400 mr-2 font-bold mt-0.5">•</span>
-                <span className="text-sm text-gray-700 leading-snug">{t.ruleClean}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-red-400 mr-2 font-bold mt-0.5">•</span>
-                <span className="text-sm text-gray-700 leading-snug">{t.ruleKey}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-red-400 mr-2 font-bold mt-0.5">•</span>
-                <span className="text-sm text-gray-700 leading-snug">{t.ruleLate}</span>
-              </li>
+              {t.rulesList?.map((rule, i) => (
+                <li key={i} className="flex items-start">
+                  <span className="text-red-400 mr-2 font-bold mt-0.5">•</span>
+                  <span className="text-sm text-gray-700 leading-snug">{rule}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -798,24 +825,12 @@
               <p className="text-xs text-gray-600 leading-relaxed italic border-l-2 border-gray-300 pl-3">
                 {t.boundSims}
               </p>
+              <p className="text-xs text-gray-600 leading-relaxed italic border-l-2 border-gray-300 pl-3">
+                {t.boundBelongings}
+              </p>
               <p className="text-xs text-gray-800 font-semibold leading-relaxed pt-2">
                 {t.boundQuestions}
               </p>
-            </div>
-          </div>
-
-          <div className="bg-green-50 rounded-2xl p-4 shadow-sm border border-green-100">
-            <p className="text-xs text-green-800 font-medium mb-3 text-center opacity-80">
-              {t.reception}
-            </p>
-            <div className="flex gap-3">
-              <a href="https://wa.me/77010701056" target="_blank" className="flex-1 bg-green-500 text-white rounded-xl p-3 text-sm font-bold flex items-center justify-center shadow-md active:bg-green-600 transition">
-                <IconWhatsApp className="w-4 h-4 mr-2" />
-                WhatsApp
-              </a>
-              <a href="https://www.instagram.com/almaty_backpackers" target="_blank" className="bg-pink-100 text-pink-600 rounded-xl p-3 shadow-sm active:bg-pink-200 transition">
-                <IconInstagram className="w-5 h-5" />
-              </a>
             </div>
           </div>
         </div>
@@ -996,7 +1011,7 @@
               Almaty Backpackers
             </h1>
             <div className="flex bg-gray-100 p-1 rounded-lg">
-              {['ru', 'kz', 'en'].map(l => (
+              {['en', 'kz', 'ru'].map(l => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
